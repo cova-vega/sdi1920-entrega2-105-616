@@ -1,6 +1,12 @@
 //Modulos
 let express = require('express');
 let app = express();
+let expressSession = require('express-session');
+app.use(expressSession({
+    secret: 'abcdefg',
+    resave: true,
+    saveUninitialized: true
+}));
 let mongo = require('mongodb');
 
 let crypto = require('crypto');
