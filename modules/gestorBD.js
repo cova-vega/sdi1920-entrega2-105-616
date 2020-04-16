@@ -5,13 +5,14 @@ module.exports = {
         this.mongo = mongo;
         this.app = app;
     },
-    insertarUsuario : function(cancion, funcionCallback) {
+    insertarUsuario : function(usuario, funcionCallback) {
         this.mongo.MongoClient.connect(this.app.get('db'), function(err, db) {
             if (err) {
                 funcionCallback(null);
             } else {
+                console.log(db)
                 let collection = db.collection('usuarios');
-                collection.insert(cancion, function(err, result) {
+                collection.insert(usuario, function(err, result) {
                     if (err) {
                         funcionCallback(null);
                     } else {
