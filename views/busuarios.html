@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block titulo %} SocialNetwork {% endblock %}
+{% block contenido_principal %}
+<!-- Búsqueda -->
+<div class=
+>
+    <div id="custom-search-input ">
+        <form method="get" action="/usuarios" >
+            <div
+                    class="input-group col-xs-8 col-sm-6 col-md-4 col-lg-5 pull-right">
+                <input type="text" class="search-query form-control"
+                       placeholder="Nombre del usuario" name="busqueda"/>
+                <span class="input-group-btn">
+<button class="btn" type="submit">
+<span class="glyphicon glyphicon-search"></span>
+</button>
+</span>
+            </div>
+        </form>
+    </div>
+</div>
+<h2>Usuarios</h2>
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>Email</th>
+            <th class="col-md-1"></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for usuario in usuarios %}
+        <tr>
+            <td>{{ usuario.nombre }}</td>
+            <td>{{ usuario.apellidos }}</td>
+            <td>{{ usuario.email }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+<div class="row text-center">
+    <ul class="pagination">
+        <li class="page-item"><a class="page-link" href="#">Anterior</a></li>
+        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+        <li class="page-item"><a class="page-link" href="#">2</a></li>
+        <li class="page-item"><a class="page-link" href="#">3</a></li>
+        <li class="page-item"><a class="page-link" href="#">4</a></li>
+        <li class="page-item"><a class="page-link" href="#">5</a></li>
+        <li class="page-item"><a class="page-link" href="#">Siguiente</a></li>
+    </ul>
+</div>
+{% endblock %}

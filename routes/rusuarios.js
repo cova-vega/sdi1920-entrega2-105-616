@@ -1,7 +1,18 @@
 
 module.exports = function (app, swig, gestorBD) {
     app.get("/usuarios", function (req, res) {
-        res.send("ver usuarios");
+
+        gestorBD.obtenerUsuario(criterio, function(usuarios) {
+            if (usuarios == null) {
+                res.send("Error al listar ");
+            } else {
+                let respuesta = swig.renderFile('views/busuarios.html',
+                    {
+                        usuarios : usuarios
+                    });
+                res.send(respuesta);
+            }
+        });
     });
 
     app.get("/registrarse", function (req, res) {
@@ -11,6 +22,7 @@ module.exports = function (app, swig, gestorBD) {
     });
 
     app.get("/identificarse", function (req, res) {
+
         var respuesta = swig.renderFile('views/bidentificacion.html', {});
         res.send(respuesta);
 
