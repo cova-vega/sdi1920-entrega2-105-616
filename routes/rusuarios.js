@@ -1,7 +1,11 @@
 
 module.exports = function (app, swig, gestorBD) {
     app.get("/usuarios", function (req, res) {
-
+        let criterio = {};
+        if( req.query.busqueda != null ){
+            criterio = {$or:[{"nombre"  :  {$regex : ".*"+req.query.busqueda+".*"}},{"apellidos" :  {$regex : ".*"+req.query.busqueda+".*"}},
+                    {"email" :  {$regex : ".*"+req.query.busqueda+".*"}}]  };
+        }
         gestorBD.obtenerUsuario(criterio, function(usuarios) {
             if (usuarios == null) {
                 res.send("Error al listar ");
