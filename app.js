@@ -26,6 +26,7 @@ app.set('clave', '123345678RO');
 app.set('crypto', crypto);
 //Rutas/controladores por lógica
 require("./routes/rusuarios.js")(app, swig, gestorBD);
+require("./routes/rinvitaciones.js")(app, swig, gestorBD);
 
 //Server
 app.listen(app.get('port'), function () {
