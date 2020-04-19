@@ -27,6 +27,7 @@
             <th>Nombre</th>
             <th>Apellido</th>
             <th>Email</th>
+            <th></th>
             <th class="col-md-1"></th>
         </tr>
         </thead>
@@ -36,6 +37,7 @@
             <td>{{ usuario.nombre }}</td>
             <td>{{ usuario.apellidos }}</td>
             <td>{{ usuario.email }}</td>
+            <td> <a href="/invitacion/{{ usuario._id.toString() }}">Agregar Amigo</a></td>
         </tr>
         {% endfor %}
         </tbody>
