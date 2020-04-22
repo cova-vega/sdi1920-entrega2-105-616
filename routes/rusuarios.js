@@ -73,7 +73,7 @@ module.exports = function (app, swig, gestorBD) {
     //Desconectar
     app.get('/desconectarse', function (req, res) {
         req.session.usuario = null;
-        res.send("Usuario desconectado");
+        res.redirect('/identificarse' + "?message=Desconectado correctamente");
     });
 
     //Insertar Usuario
@@ -91,7 +91,7 @@ module.exports = function (app, swig, gestorBD) {
             if (id == null) {
                 res.send("Error al insertar ");
             } else {
-                res.send('Usuario Insertado ' + id);
+                res.redirect("/identificarse");
             }
         });
 
