@@ -43,7 +43,8 @@ module.exports = function (app, swig, gestorBD) {
                         {
                             invitaciones: invitaciones,
                             paginas: paginas,
-                            actual: pg
+                            actual: pg,
+                            usuarios:usuarios
                         });
                     res.send(respuesta);
                 }
@@ -191,7 +192,8 @@ module.exports = function (app, swig, gestorBD) {
                             invitaciones: invitaciones,
                             paginas: paginas,
                             actual: pg,
-                            amigos:listaAmigos
+                            amigos:listaAmigos,
+                            usuarios:usuarios
                         });
                     res.send(respuesta);
                 }
