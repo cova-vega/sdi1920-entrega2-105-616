@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block titulo %} SocialNetwork {% endblock %}
+{% block titulo %} Ver lista de invitaciones {% endblock %}
 {% block contenido_principal %}
 <!-- Búsqueda -->
 
@@ -20,6 +20,7 @@
             <td>{{ invitacion.emisor.nombre }}</td>
             <td>{{ invitacion.emisor.apellidos }}</td>
             <td><a href="/invitacion/aceptada/{{ invitacion._id.toString() }}">Aceptar</a></td>
+
 
         </tr>
         {% endfor %}

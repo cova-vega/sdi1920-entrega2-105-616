@@ -68,37 +68,40 @@ module.exports = function (app, swig, gestorBD) {
                 if (receptor1[0].email != emisor1[0].email) {
 
                     //Compruebo que la invitación no haya sido ya enviada
+                        let criterio2 = {$and: [{"emisor": emisor1[0]}, {"receptor": receptor1[0]}, {"aceptado": false}]};
 
-                    let criterio2 = {$and: [{"emisor": emisor1[0]}, {"receptor": receptor1[0]}, {"aceptado": false}]};
+                        gestorBD.obtenerInvitaciones(criterio2, function (invitaciones) {
 
-                    gestorBD.obtenerInvitaciones(criterio2, function (invitaciones) {
+                            if (invitaciones == null || invitaciones.length <= 0 ) {
 
-                        if ((invitaciones == null || invitaciones.length <= 0 )) {
-                            let invitacion = {
+                                let invitacion = {
 
-                                receptor: receptor1[0],
-                                emisor: emisor1[0],
-                                aceptado: false
+                                    receptor: receptor1[0],
+                                    emisor: emisor1[0],
+                                    aceptado: false
 
-                            };
+                                };
                                 gestorBD.enviarInvitacion(invitacion, function (id) {
                                     if (id == null) {
-                                        res.send("Error al enviar invitacion ");
+                                        res.redirect("/usuarios"+ "?mensaje=Error al enviar invitacion"+"&tipoMensaje=alert-danger");
                                     }
                                     else {
                                         //Invitacion enviada
-                                        res.redirect("/usuarios");
+                                        res.redirect("/usuarios?mensaje=Peticion enviada correctamente");
                                     }
                                 });
-                        }
-                        else{
+                            }
+                            else{
+                                res.redirect("/usuarios"+ "?mensaje=Invitacion ya enviada o ya es amigo" + "&tipoMensaje=alert-danger");
+                            }
 
-                            res.send("Invitación de amistad ya enviada")
-                        }
+                        })
 
-                    })
                 } else {
-                    res.send("No puede enviarse una petición a sí mismo");
+
+                    res.redirect("/usuarios"+ "?mensaje=No puede enviarse una petición a sí mismo"+"&tipoMensaje=alert-danger");
+
+
                 }
             })
         })
@@ -122,7 +125,7 @@ module.exports = function (app, swig, gestorBD) {
                 }
                 //Actualizo la peticion para que el estado cambie a true
                 gestorBD.actualizarPeticion(criterio2, peticion, function (invitaciones) {
-                    res.redirect("/invitaciones");
+                    res.redirect("/invitaciones?mensaje=Peticion ya aceptada");
                 })
             }
 
