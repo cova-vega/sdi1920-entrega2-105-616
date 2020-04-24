@@ -55,7 +55,7 @@ module.exports = function (app, swig, gestorBD) {
     //Registro
 
     app.get("/registrarse", function (req, res) {
-        var respuesta = swig.renderFile('views/bregistro.html', {});
+        let respuesta = swig.renderFile('views/bregistro.html', {});
         res.send(respuesta);
 
     });
@@ -76,7 +76,7 @@ module.exports = function (app, swig, gestorBD) {
         res.redirect('/identificarse' + "?message=Desconectado correctamente");
     });
 
-    //Insertar Usuario
+    //Registrar Usuario
     app.post('/usuario', function (req, res) {
         let seguro = app.get("crypto").createHmac('sha256', app.get('clave'))
             .update(req.body.password).digest('hex');
@@ -86,14 +86,23 @@ module.exports = function (app, swig, gestorBD) {
             apellidos : req.body.apellidos,
             password: seguro
         };
-
-        gestorBD.insertarUsuario(usuario, function (id) {
-            if (id == null) {
-                res.send("Error al insertar ");
-            } else {
-                res.redirect("/identificarse");
+        let criterio = {email: req.body.email};
+        gestorBD.obtenerUsuario(criterio, function (usuarios) {
+            if (usuarios == null || usuarios.length == 0) {
+                gestorBD.insertarUsuario(usuario, function (id) {
+                    if (id == null) {
+                        res.redirect("/registrarse" + "?mensaje=Error al registrar usuario"+
+                            "&tipoMensaje=alert-danger ");
+                    } else {
+                        res.redirect("/identificarse?=mensaje=Registro realizado correctamente");
+                    }
+                });
+            }else{
+                res.redirect("/registrarse?mensaje=Ya existe un usuario con este email.");
             }
-        });
+
+        })
+
 
     });
 
@@ -110,10 +119,11 @@ module.exports = function (app, swig, gestorBD) {
         gestorBD.obtenerUsuario(criterio, function (usuarios) {
             if (usuarios == null || usuarios.length == 0) {
                 req.session.usuario = null;
-                res.send("Error al loguarse ");
+                res.redirect("/identificarse" +"?mensaje=Email o password incorrecto"+
+                    "&tipoMensaje=alert-danger ");
             } else {
                 req.session.usuario =  usuarios[0].email;
-                res.redirect("/usuarios");
+                res.redirect("/usuarios?mensaje=Usuario identificado");
             }
         });
 

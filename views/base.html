@@ -26,15 +26,20 @@
         </div>
         <div class="collapse navbar-collapse" id="myNavbar">
             <ul class="nav navbar-nav">
-
-            </ul>
-            <ul class="nav navbar-nav navbar-right">
+                {%if usuarios !=null%}
                 <li><a href="/usuarios"><span class="glyphicon glyphicon-user"></span> Ver Usuarios</a></li>
                 <li><a href="/invitaciones"><span class="glyphicon glyphicon-user"></span> Ver Invitaciones</a></li>
                 <li><a href="/amigos"><span class="glyphicon glyphicon-user"></span> Ver Amigos</a></li>
+                {% endif%}
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+
+                {%if usuarios ==null%}
                 <li><a href="/registrarse"><span class="glyphicon glyphicon-user"></span> Registrate</a></li>
                 <li><a href="/identificarse"><span class="glyphicon glyphicon-log-in"></span> Identifícate</a></li>
+                {% else%}
                 <li><a href="/desconectarse"><span class="glyphicon glyphicon-log-in"></span> Desconectarse</a></li>
+                {% endif%}
             </ul>
         </div>
     </div>
@@ -43,11 +48,33 @@
 
 
 <div class="container">
-
+    <script>
+        var mensaje = getUrlParameter('mensaje');
+        var tipoMensaje = getUrlParameter('tipoMensaje');
+        // Otra forma de recuperar los parametros de la url pero no compatible con IE
+        /* const params = new URLSearchParams(location.search);
+        var mensaje = params.get("mensaje");
+        var tipoMensaje = params.get("mensaje");*/
+        if ( mensaje != ""){
+            if (tipoMensaje == "" ){
+                tipoMensaje = 'alert-info';
+            }
+            $( ".container" )
+                .append("<div class='alert "+tipoMensaje+"'>"+mensaje+" </div>");
+        }
+        function getUrlParameter(name) {
+            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+            var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            var results = regex.exec(location.search);
+            return results === null ? '' :
+                decodeURIComponent(results[1].replace(/\+/g, ' '));
+        };
+    </script>
     <!-- Contenido -->
     {% block contenido_principal %}
     <!-- Posible contenido por defecto -->
     {% endblock %}
+
 
 </div>
 
