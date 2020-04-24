@@ -78,30 +78,47 @@ module.exports = function (app, swig, gestorBD) {
 
     //Registrar Usuario
     app.post('/usuario', function (req, res) {
-        let seguro = app.get("crypto").createHmac('sha256', app.get('clave'))
-            .update(req.body.password).digest('hex');
-        let usuario = {
-            email: req.body.email,
-            nombre : req.body.nombre,
-            apellidos : req.body.apellidos,
-            password: seguro
-        };
-        let criterio = {email: req.body.email};
-        gestorBD.obtenerUsuario(criterio, function (usuarios) {
-            if (usuarios == null || usuarios.length == 0) {
-                gestorBD.insertarUsuario(usuario, function (id) {
-                    if (id == null) {
-                        res.redirect("/registrarse" + "?mensaje=Error al registrar usuario"+
-                            "&tipoMensaje=alert-danger ");
-                    } else {
-                        res.redirect("/identificarse?=mensaje=Registro realizado correctamente");
+
+        if(req.body.name!=null || req.body.apellidos!=null || req.body.email!=null || req.body.password!=null || req.body.passwordConfirm!=null) {
+            if(req.body.password == req.body.passwordConfirm){
+                let seguro = app.get("crypto").createHmac('sha256', app.get('clave'))
+                    .update(req.body.password).digest('hex');
+                let usuario = {
+                    email: req.body.email,
+                    nombre : req.body.nombre,
+                    apellidos : req.body.apellidos,
+                    password: seguro
+                };
+                let criterio = {email: req.body.email};
+                gestorBD.obtenerUsuario(criterio, function (usuarios) {
+                    if (usuarios == null || usuarios.length == 0 ) {
+                        gestorBD.insertarUsuario(usuario, function (id) {
+                            if (id == null) {
+                                res.redirect("/registrarse" + "?mensaje=Error al registrar usuario"+
+                                    "&tipoMensaje=alert-danger ");
+                            }
+                            else {
+                                res.redirect("/identificarse?=mensaje=Registro realizado correctamente");
+                            }
+                        });
+                    } else{
+                        res.redirect("/registrarse?mensaje=Ya existe un usuario con este email." +  "&tipoMensaje=alert-danger ");
                     }
-                });
-            }else{
-                res.redirect("/registrarse?mensaje=Ya existe un usuario con este email.");
+
+                })
+
+            }
+            else{
+                res.redirect("/registrarse" + "?mensaje=Contraseñas no coinciden" +
+                    "&tipoMensaje=alert-danger ");
             }
 
-        })
+        }else{
+            res.redirect("/registrarse" + "?mensaje=Error campos vacios" +
+                "&tipoMensaje=alert-danger ");
+        }
+
+
 
 
     });
