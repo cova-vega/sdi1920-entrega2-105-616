@@ -62,7 +62,7 @@ module.exports = function (app, swig, gestorBD) {
 
     //Pagina home
     //Identificar
-    app.get("/", function (req, res) {
+    app.get("/home", function (req, res) {
 
         var respuesta = swig.renderFile('views/index.html', {});
         res.send(respuesta);
