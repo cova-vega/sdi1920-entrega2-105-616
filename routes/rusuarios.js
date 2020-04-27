@@ -62,7 +62,7 @@ module.exports = function (app, swig, gestorBD) {
 
     //Pagina home
     //Identificar
-    app.get("/home", function (req, res) {
+    app.get("/", function (req, res) {
 
         var respuesta = swig.renderFile('views/index.html', {});
         res.send(respuesta);
@@ -86,8 +86,8 @@ module.exports = function (app, swig, gestorBD) {
 
     //Registrar Usuario
     app.post('/usuario', function (req, res) {
-
-        if(req.body.name!=null || req.body.apellidos!=null || req.body.email!=null || req.body.password!=null || req.body.passwordConfirm!=null) {
+        if( req.body.email !="" && req.body.nombre!="" && req.body.apellidos !="" &&
+            req.body.password !="" && req.body.passwordConfirm !=""){
             if(req.body.password == req.body.passwordConfirm){
                 let seguro = app.get("crypto").createHmac('sha256', app.get('clave'))
                     .update(req.body.password).digest('hex');
@@ -99,19 +99,23 @@ module.exports = function (app, swig, gestorBD) {
                 };
                 let criterio = {email: req.body.email};
                 gestorBD.obtenerUsuario(criterio, function (usuarios) {
-                    if (usuarios == null || usuarios.length == 0 ) {
-                        gestorBD.insertarUsuario(usuario, function (id) {
-                            if (id == null) {
-                                res.redirect("/registrarse" + "?mensaje=Error al registrar usuario"+
-                                    "&tipoMensaje=alert-danger ");
-                            }
-                            else {
-                                res.redirect("/usuarios?=mensaje=Registro realizado correctamente");
-                            }
-                        });
-                    } else{
-                        res.redirect("/registrarse?mensaje=Ya existe un usuario con este email." +  "&tipoMensaje=alert-danger ");
-                    }
+                    console.log(usuarios);
+                    console.log(usuarios.length);
+                    if (usuarios.length==0) {
+                            gestorBD.insertarUsuario(usuario, function (id) {
+
+                                if (id == null) {
+                                    res.redirect("/registrarse" + "?mensaje=Error al registrar usuario"+
+                                        "&tipoMensaje=alert-danger ");
+                                }
+                                else {
+                                    req.session.email = req.body.email;
+                                    res.redirect("/usuarios?mensaje=Registro realizado correctamente");
+                                }
+                            });
+                        }else{
+                            res.redirect("/registrarse?mensaje=Ya existe un usuario con este email." +  "&tipoMensaje=alert-danger ");
+                        }
 
                 })
 
@@ -122,13 +126,8 @@ module.exports = function (app, swig, gestorBD) {
             }
 
         }else{
-            res.redirect("/registrarse" + "?mensaje=Error campos vacios" +
-                "&tipoMensaje=alert-danger ");
+            res.redirect("/registrarse?mensaje=Campos vacios" +  "&tipoMensaje=alert-danger ");
         }
-
-
-
-
     });
 
     //Identificarse
