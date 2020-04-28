@@ -99,17 +99,17 @@ module.exports = function (app, swig, gestorBD) {
                 };
                 let criterio = {email: req.body.email};
                 gestorBD.obtenerUsuario(criterio, function (usuarios) {
-                    console.log(usuarios);
-                    console.log(usuarios.length);
-                    if (usuarios.length==0) {
-                            gestorBD.insertarUsuario(usuario, function (id) {
 
+                    if (usuarios.length==0 || usuarios==null) {
+                            gestorBD.insertarUsuario(usuario, function (id) {
+                                console.log(id);
                                 if (id == null) {
                                     res.redirect("/registrarse" + "?mensaje=Error al registrar usuario"+
                                         "&tipoMensaje=alert-danger ");
                                 }
                                 else {
-                                    req.session.email = req.body.email;
+
+                                    req.session.usuario = req.body.email;
                                     res.redirect("/usuarios?mensaje=Registro realizado correctamente");
                                 }
                             });
