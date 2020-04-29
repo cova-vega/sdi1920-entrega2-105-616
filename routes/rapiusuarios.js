@@ -3,12 +3,13 @@ module.exports = function(app, gestorBD) {
     app.post("/api/autenticar/", function(req, res) {
         var seguro = app.get("crypto").createHmac('sha256', app.get('clave'))
             .update(req.body.password).digest('hex');
+
               var criterio = {
             email : req.body.email,
             password : seguro
         }
 
-        gestorBD.obtenerUsuarios(criterio, function(usuarios) {
+        gestorBD.obtenerUsuario(criterio, function(usuarios) {
             if (usuarios == null || usuarios.length == 0) {
                 res.status(401);
                 res.json({
@@ -27,6 +28,5 @@ module.exports = function(app, gestorBD) {
 
         });
     });
-
 
 }

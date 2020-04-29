@@ -151,26 +151,49 @@ module.exports = {
             }
         });
     },
-    //Lista de amigos paginadaa
 
+
+    //Insertar amigo
+
+    insertarAmigo : function(amigo, funcionCallback) {
+        this.mongo.MongoClient.connect(this.app.get('db'), function(err, db) {
+            if (err) {
+                funcionCallback(null);
+            } else {
+                console.log(db)
+                let collection = db.collection('amigos');
+                collection.insert(amigo, function(err, result) {
+                    if (err) {
+                        funcionCallback(null);
+                    } else {
+                        funcionCallback(result.ops[0]._id);
+                    }
+                    db.close();
+                });
+            }
+        });
+    },
+
+    //Lista de amigos paginada
     obtenerAmigosPg : function(criterio,pg,funcionCallback){
         this.mongo.MongoClient.connect(this.app.get('db'), function(err, db) {
             if (err) {
                 funcionCallback(null);
             } else {
-                let collection = db.collection('invitaciones');
+                let collection = db.collection('amigos');
                 collection.count(function(err, count){
                     collection.find(criterio).skip( (pg-1)*5 ).limit( 5 )
-                        .toArray(function(err, invitaciones) {
+                        .toArray(function(err, amigos) {
                             if (err) {
                                 funcionCallback(null);
                             } else {
-                                funcionCallback(invitaciones, count);
+                                funcionCallback(amigos, count);
                             }
                             db.close();
                         });
                 });
             }
         });
-    },
+    }
+
 };
