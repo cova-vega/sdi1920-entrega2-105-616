@@ -17,6 +17,10 @@ let bodyParser = require('body-parser');
 var jwt = require('jsonwebtoken');
 app.set('jwt',jwt);
 
+//Declaramos los módulos fs y https para la implementación https
+let fs = require('fs');
+let https = require('https');
+
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
@@ -73,6 +77,15 @@ routerUsuarioToken.use(function(req, res, next) {
 });
 
 //Server
-app.listen(app.get('port'), function () {
+//app.listen(app.get('port'), function () {
+//    console.log("Servidor activo");
+//});
+
+//Modificamos la creación del servidor para utilizar https, indicándole donde está la clave y el certificado
+
+https.createServer({
+    key: fs.readFileSync('certificates/alice.key'),
+    cert: fs.readFileSync('certificates/alice.crt')
+}, app).listen(app.get('port'), function() {
     console.log("Servidor activo");
 });
