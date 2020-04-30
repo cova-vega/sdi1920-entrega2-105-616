@@ -76,6 +76,14 @@ routerUsuarioToken.use(function(req, res, next) {
     }
 });
 
+// Aplicamos routerUsuarioToken a la lista de identificadores de los amigos del usuario en sesión
+//para comprobar si la petición contiene un token de seguridad válido
+
+app.use('/api/amigos', routerUsuarioToken);
+
+
+
+
 //Server
 //app.listen(app.get('port'), function () {
 //    console.log("Servidor activo");
