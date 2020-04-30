@@ -113,21 +113,33 @@ module.exports = function (app, swig, gestorBD) {
         let id = gestorBD.mongo.ObjectID(req.params.id);
 
         let criterio = {"_id": id}
-        gestorBD.obtenerInvitaciones(criterio, function (idinvitacion) {
+        gestorBD.obtenerInvitaciones(criterio, function (invitacion) {
 
             //Compruebo que el id de la invitacion no sea el mismo que esta en sesion
-            if (idinvitacion[0].email == req.session.usuario) {
+            if (invitacion[0].email == req.session.usuario) {
                 res.send("No hay ninguna invitacion")
             } else {
-                //Compruebo que la invitación no haya sido ya enviada
+                //Compruebo que la invitación no haya sido ya aceptada
                 let criterio2 = {"_id": gestorBD.mongo.ObjectID(req.params.id)};
                 let peticion = {
                     aceptado: true
                 }
+
                 //Actualizo la peticion para que el estado cambie a true
                 gestorBD.actualizarPeticion(criterio2, peticion, function (invitaciones) {
-                    res.redirect("/invitaciones?mensaje=Peticion ya aceptada");
+                    let amigo1 = { amigo_1: invitacion[0].receptor ,
+                                   amigo_2: invitacion[0].emisor }
+                    gestorBD.insertarAmigo(amigo1,function () {
+                        let amigo2 = { amigo_1: invitacion[0].emisor ,
+                                       amigo_2: invitacion[0].receptor }
+                        gestorBD.insertarAmigo(amigo2,function () {
+
+                            res.redirect("/invitaciones?mensaje=Peticion aceptada");
+                        })
+                    })
+
                 })
+
             }
 
         })
@@ -138,43 +150,22 @@ module.exports = function (app, swig, gestorBD) {
     app.get("/amigos", function (req, res) {
 
         //Compruebo que hay un usuario en sesión
-        let listaAmigos=[];
         if (req.session.usuario == null) {
             res.redirect("/identificarse");
             return;
         }
-
-        let criterio = {"email": req.session.usuario};
-        gestorBD.obtenerUsuario(criterio, function (usuarios) {
-
-            criterio ={$and: [{$or: [{"emisor": usuarios[0]},{"receptor": usuarios[0]}]},{"aceptado":true}]};
-            gestorBD.obtenerInvitaciones(criterio,function (invitaciones) {
-                let amigo;
-                //Busco en cada invitacion el emisor o receptor y lo comparo con usuario en sesion para sacar el amigp
-                invitaciones.forEach(invitacion=>{
-                        if(invitacion.emisor.email==req.session.usuario){
-                            amigo=invitacion.receptor;
-                            listaAmigos.push(amigo);
-                        }else if(invitacion.receptor.email==req.session.usuario){
-                            amigo=invitacion.emisor;
-                            listaAmigos.push(amigo);
-                        }
-                });
-                console.log(listaAmigos);
-
-
-            })
 
             let pg = parseInt(req.query.pg); // Es String !!!
             if (req.query.pg == null) { // Puede no venir el param
                 pg = 1;
             }
 
+            let criterio2 = {"amigo_1.email": req.session.usuario}
             //Obtengo la lista de amigos paginada
 
-            gestorBD.obtenerAmigosPg(criterio, pg, function (invitaciones, total) {
+            gestorBD.obtenerAmigosPg(criterio2, pg, function (amigos, total) {
 
-                if (invitaciones == null) {
+                if (amigos == null) {
                     res.send("Error al listar ");
                 } else {
                     let ultimaPg = total / 5;
@@ -189,17 +180,13 @@ module.exports = function (app, swig, gestorBD) {
                     }
                     let respuesta = swig.renderFile('views/bamigos.html',
                         {
-                            invitaciones: invitaciones,
-                            paginas: paginas,
-                            actual: pg,
-                            amigos:listaAmigos,
-                            usuarios:usuarios
+                           amigos: amigos
                         });
                     res.send(respuesta);
                 }
             });
         });
-    });
+
 
 }
 
