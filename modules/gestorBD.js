@@ -194,6 +194,28 @@ module.exports = {
                 });
             }
         });
-    }
+    },
+
+    //Lista de amigos
+    obtenerAmigos : function(criterio,funcionCallback){
+        this.mongo.MongoClient.connect(this.app.get('db'), function(err, db) {
+            if (err) {
+                funcionCallback(null);
+            } else {
+                let collection = db.collection('amigos');
+                collection.count(function(err, count){
+                    collection.find(criterio).toArray(function(err,amigos) {
+                        if (err) {
+                            funcionCallback(null);
+                        } else {
+                            funcionCallback(amigos);
+                        }
+                        db.close();
+                    });
+                });
+            }
+        });
+    },
+
 
 };
