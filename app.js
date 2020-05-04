@@ -37,6 +37,7 @@ app.set('crypto', crypto);
 require("./routes/rusuarios.js")(app, swig, gestorBD);
 require("./routes/rinvitaciones.js")(app, swig, gestorBD);
 require("./routes/rapiusuarios.js")(app, gestorBD);
+require("./routes/rapimensajes.js")(app, gestorBD);
 
 
 //Router Usuario Token
@@ -80,6 +81,7 @@ routerUsuarioToken.use(function(req, res, next) {
 //para comprobar si la petición contiene un token de seguridad válido
 
 app.use('/api/amigos', routerUsuarioToken);
+app.use('api/mensajes', routerUsuarioToken);
 
 
 
