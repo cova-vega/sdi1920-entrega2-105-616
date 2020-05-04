@@ -11,8 +11,8 @@ module.exports = function (app, gestorBD) {
         };
         //Comprobamos si el amigo_1 es el emisor o el amigo_2 el destino o viceversa
         let criterio = {
-            $or: [{$and: [{"amigo_1": mensaje.emisor}, {"amigo_2": mensaje.destino}]},
-                {$and: [{"amigo_1": mensaje.destino}, {"amigo_2":  mensaje.emisor}]}]
+            $or: [{$and: [{"amigo_1.email": mensaje.emisor}, {"amigo_2.email": mensaje.destino}]},
+                {$and: [{"amigo_1.email": mensaje.destino}, {"amigo_2.email":  mensaje.emisor}]}]
         };
 
 
