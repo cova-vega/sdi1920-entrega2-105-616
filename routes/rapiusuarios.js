@@ -25,6 +25,7 @@ module.exports = function(app, gestorBD) {
                 var token = app.get('jwt').sign(
                     {usuario: criterio.email , tiempo: Date.now()/1000},
                     "secreto");
+                req.session.usuario=req.body.email;
                 res.status(200);
                 res.json({
                     autenticado: true,
