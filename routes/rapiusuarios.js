@@ -2,9 +2,8 @@ module.exports = function(app, gestorBD) {
 
 
     //Implementamos Token por Login. A partir del usuario y la contraseña encriptada realizamos
-    //una búsqueda en la base de datos, si los datos coinciden retornamos un JSON con el
-    //parámetro autenticado a true y un nuevo token. En caso contrario, retornamos un JSON con
-    //el parámetro autenticado a false y sin token.
+    //una búsqueda en la base de datos, si los datos coinciden retornamos un JSON con el un nuevo
+    //token. En caso contrario, retornamos un JSON con un mensaje de  error de inicio de sesión incorrecto.
 
     app.post("/api/autenticar/", function(req, res) {
         var seguro = app.get("crypto").createHmac('sha256', app.get('clave'))
@@ -19,7 +18,7 @@ module.exports = function(app, gestorBD) {
             if (usuarios == null || usuarios.length == 0) {
                 res.status(401);
                 res.json({
-                    autenticado : false
+                    error : "Inicio de sesión incorrecto"
                 })
             } else {
                 var token = app.get('jwt').sign(
@@ -27,7 +26,7 @@ module.exports = function(app, gestorBD) {
                     "secreto");
                 res.status(200);
                 res.json({
-                    autenticado: true,
+
                     token : token
                 });
             }
@@ -35,9 +34,9 @@ module.exports = function(app, gestorBD) {
         });
     });
 
-        //EL servicio retorna una lista de con los identificadores de todos los amigos del usuario identificado.
-        //Para permitir listar los amigos el usuario debe de estar identificado en la aplicación, por lo tanto, la petición
-        // debe contener un token de seguridad válido
+        //EL servicio retorna un JSON con una lista de con los identificadores de todos los amigos del usuario identificado. En
+        //caso de que la lista esté vacía retornamos un JSON con un mensaje de error. Para permitir listar los amigos el usuario
+        //debe de estar identificado en la aplicación, por lo tanto, la petición debe contener un token de seguridad válido
 
         app.get("/api/amigos", function(req, res) {
 
@@ -47,7 +46,7 @@ module.exports = function(app, gestorBD) {
                 if (amigos == null) {
                     res.status(500);
                     res.json({
-                        error : "se ha producido un error"
+                        error : "Se ha producido un error"
                     })
                 } else {
 

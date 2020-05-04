@@ -26,6 +26,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static('public'));
 
+
+
 let gestorBD = require("./modules/gestorBD.js");
 gestorBD.init(app, mongo);
 //Variables
