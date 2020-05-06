@@ -49,10 +49,10 @@ module.exports = function (app, gestorBD) {
                 res.status(500);
                 res.json({error: "No son amigos"});
             } else {
-                //Miramos si el emisor es el usuario em sesion y el destino es el email correcto y vicebersar
+                //Miramos si el emisor es el usuario en sesion y el destino es el email correcto y vicebersar
                 let criterio2 = {
-                    $or: [{$and: [{"emisor": res.usuario}, {"destino": req.params.email}]},
-                        {$and: [{"emisor": req.params.email}, {"destino": res.usuario}]}]
+                    $or: [{$and: [{"emisor": req.body.email}, {"destino": req.params.email}]},
+                        {$and: [{"emisor": req.params.email}, {"destino": req.body.email}]}]
                 };
 
                 gestorBD.obtenerMensajes(criterio2, function (mensajes) {
