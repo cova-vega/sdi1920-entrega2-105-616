@@ -7,6 +7,13 @@ app.use(expressSession({
     resave: true,
     saveUninitialized: true
 }));
+log4js = require('log4js');
+log4js.configure({
+    appenders: { sdi2: { type: 'file', filename: 'redSocialNode.log' } },
+    categories: { default: { appenders: ['sdi2'], level: 'trace' } }
+});
+let logger = log4js.getLogger('sdi2');
+
 let mongo = require('mongodb');
 
 let crypto = require('crypto');
