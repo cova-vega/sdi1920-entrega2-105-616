@@ -19,6 +19,7 @@ module.exports = function (app, swig, gestorBD) {
         //Compruebo que hay un usuario en sesión
 
         if (req.session.usuario == null) {
+            app.get('logger').error("No hay ningun usuario en sesion.");
             res.redirect("/identificarse");
             return;
         }
@@ -45,7 +46,8 @@ module.exports = function (app, swig, gestorBD) {
         gestorBD.obtenerUsuarioPg(criterio, pg, function (usuarios, total) {
 
             if (usuarios == null) {
-                res.send("Error al listar ");
+                app.get('logger').error("Error al listar.");
+                res.redirect("/usuarios" + "?mensaje=Error al listar usuarios" + "&tipoMensaje=alert-danger ");
             } else {
                 let ultimaPg = total / 5;
                 if (total % 5 > 0) { // Sobran decimales
@@ -63,6 +65,8 @@ module.exports = function (app, swig, gestorBD) {
                         paginas: paginas,
                         actual: pg
                     });
+                app.get("logger").info("Listando usuarios corréctamente por "
+                    + req.session.usuario);
                 res.send(respuesta);
             }
         });
@@ -150,27 +154,32 @@ module.exports = function (app, swig, gestorBD) {
                             gestorBD.insertarUsuario(usuario, function (id) {
                                 console.log(id);
                                 if (id == null) {
+                                    app.get('logger').error("Intento de registro inválido.");
                                     res.redirect("/registrarse" + "?mensaje=Error al registrar usuario" +
                                         "&tipoMensaje=alert-danger ");
                                 } else {
 
                                     req.session.usuario = req.body.email;
+                                    app.get('logger').info("Nuevo usuario con ID " + id + " registrado.");
                                     res.redirect("/usuarios?mensaje=Registro realizado correctamente");
                                 }
                             });
                         } else {
+                            app.get('logger').error("Error al registro mismo email ya registrado");
                             res.redirect("/registrarse?mensaje=Ya existe un usuario con este email." + "&tipoMensaje=alert-danger ");
                         }
 
                     })
 
                 } else {
+                    app.get('logger').error("Intento de registro inválido contraseñas no coinciden.");
                     res.redirect("/registrarse" + "?mensaje=Contraseñas no coinciden" +
                         "&tipoMensaje=alert-danger ");
                 }
 
             }else{
-            res.redirect("/registrarse?mensaje=Campos vacios" +  "&tipoMensaje=alert-danger ");
+                app.get('logger').error("Intento de registro inválido campos vacios.");
+                res.redirect("/registrarse?mensaje=Campos vacios" +  "&tipoMensaje=alert-danger ");
         }
 
     });
@@ -199,10 +208,12 @@ module.exports = function (app, swig, gestorBD) {
             gestorBD.obtenerUsuario(criterio, function (usuarios) {
                 if (usuarios == null || usuarios.length == 0) {
                     req.session.usuario = null;
+                    app.get('logger').error("Intento de identificación fallido");
                     res.redirect("/identificarse" +"?mensaje=Email o password incorrecto"+
                         "&tipoMensaje=alert-danger ");
                 } else {
                     req.session.usuario =  usuarios[0].email;
+                    app.get('logger').info("Usuario " + usuarios[0].email + " se ha identificado con éxito.");
                     res.redirect("/usuarios?mensaje=Usuario identificado");
                 }
             });

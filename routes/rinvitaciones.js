@@ -39,7 +39,8 @@ module.exports = function (app, swig, gestorBD) {
             gestorBD.obtenerInvitacionesPg(criterio, pg, function (invitaciones, total) {
 
                 if (invitaciones == null) {
-                    res.send("Error al listar ");
+                    app.get('logger').error("Error al listar.");
+                    res.redirect("/invitaciones" + "?mensaje=Error al listar peticiones" + "&tipoMensaje=alert-danger ");
                 } else {
                     let ultimaPg = total / 5;
                     if (total % 5 > 0) { // Sobran decimales
@@ -58,6 +59,8 @@ module.exports = function (app, swig, gestorBD) {
                             actual: pg,
                             usuarios:usuarios
                         });
+                    app.get("logger").info("Listando peticiones de amistad corréctamente para "
+                        + req.session.usuario);
                     res.send(respuesta);
                 }
             });
@@ -109,13 +112,16 @@ module.exports = function (app, swig, gestorBD) {
                                 };
                                 gestorBD.enviarInvitacion(invitacion, function (id) {
                                     if (id == null) {
+                                        app.get('logger').error("Error al enviar la invitación ");
                                         res.redirect("/usuarios" + "?mensaje=Error al enviar invitacion" + "&tipoMensaje=alert-danger");
                                     } else {
                                         //Invitacion enviada
+                                        app.get('logger').info("Usuario " + req.session.usuario + "ha enviado una peticion.");
                                         res.redirect("/usuarios?mensaje=Peticion enviada correctamente");
                                     }
                                 });
                             } else {
+                                app.get('logger').error("Invitación ya enviada.");
                                 res.redirect("/usuarios" + "?mensaje=Invitacion ya enviada o ya es amigo" + "&tipoMensaje=alert-danger");
                             }
 
@@ -123,7 +129,7 @@ module.exports = function (app, swig, gestorBD) {
 
 
                     } else {
-
+                        app.get('logger').error("No se pueden enviar peticiones a si mismo.");
                         res.redirect("/usuarios" + "?mensaje=No puede enviarse una petición a sí mismo" + "&tipoMensaje=alert-danger");
 
 
@@ -151,7 +157,8 @@ module.exports = function (app, swig, gestorBD) {
 
                 //Comprobamos que el id de la invitacion no sea el mismo que esta en sesion
                 if (invitacion[0].email == req.session.usuario) {
-                    res.send("No hay ninguna invitacion")
+                    app.get('logger').error("No hay ninguna invitación.");
+                    res.redirect("/usuarios" + "?mensaje=No hay ninguna invitacion" + "&tipoMensaje=alert-danger");
                 } else {
                     //Comprobamos que la invitación no haya sido ya aceptada
                     let criterio2 = {"_id": gestorBD.mongo.ObjectID(req.params.id)};
@@ -172,7 +179,7 @@ module.exports = function (app, swig, gestorBD) {
                                 amigo_2: invitacion[0].receptor
                             }
                             gestorBD.insertarAmigo(amigo2, function () {
-
+                                app.get('logger').info("Usuario " + req.session.usuario + "ha aceptado una peticion.");
                                 res.redirect("/invitaciones?mensaje=Peticion aceptada");
                             })
                         })
@@ -199,6 +206,7 @@ module.exports = function (app, swig, gestorBD) {
 
             //Comprobamos que hay un usuario en sesión
             if (req.session.usuario == null) {
+                app.get('logger').error("No hay ningun usuario en sesion.");
                 res.redirect("/identificarse");
                 return;
             }
@@ -214,7 +222,8 @@ module.exports = function (app, swig, gestorBD) {
             gestorBD.obtenerAmigosPg(criterio2, pg, function (amigos, total) {
 
                 if (amigos == null) {
-                    res.send("Error al listar ");
+                    app.get('logger').error("Error al listar.");
+                    res.redirect("/amigos" + "?mensaje=Error al listar amigos" + "&tipoMensaje=alert-danger ");
                 } else {
                     let ultimaPg = total / 5;
                     if (total % 5 > 0) { // Sobran decimales
@@ -230,6 +239,8 @@ module.exports = function (app, swig, gestorBD) {
                         {
                             amigos: amigos
                         });
+                    app.get("logger").info("Listando lista de amigos para "
+                        + req.session.usuario);
                     res.send(respuesta);
                 }
             });
