@@ -38,7 +38,7 @@ app.set('crypto', crypto);
 //Rutas/controladores por lógica
 require("./routes/rusuarios.js")(app, swig, gestorBD);
 require("./routes/rinvitaciones.js")(app, swig, gestorBD);
-require("./routes/rapiusuarios.js")(app, gestorBD);
+require("./routes/rapiamigos.js")(app, gestorBD);
 require("./routes/rapimensajes.js")(app, gestorBD);
 
 

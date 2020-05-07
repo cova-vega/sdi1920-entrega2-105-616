@@ -51,9 +51,9 @@ module.exports = function(app, gestorBD) {
      *
      */
 
-        app.get("/api/amigos", function(req, res) {
+        app.get("/api/amigosid", function(req, res) {
 
-            let criterio = {"amigo_1.email": req.body.email};
+            let criterio = {"amigo_1.email": app.get('jwt').decode(req.headers['token'],'secreto').usuario};
 
             gestorBD.obtenerAmigos( criterio , function(amigos) {
                 if (amigos == null) {
@@ -73,6 +73,26 @@ module.exports = function(app, gestorBD) {
                 }
             });
         });
+
+    app.get("/api/amigos", function(req, res) {
+
+        let criterio = {"amigo_1.email": app.get('jwt').decode(req.headers['token'],'secreto').usuario};
+
+        gestorBD.obtenerAmigos( criterio , function(amigos) {
+            if (amigos == null) {
+                res.status(500);
+                res.json({
+                    error : "Se ha producido un error"
+                })
+            } else {
+
+                    res.status(200);
+                    res.send( JSON.stringify(amigos) );
+
+            }
+        });
+    });
+
 
     /**
      *
