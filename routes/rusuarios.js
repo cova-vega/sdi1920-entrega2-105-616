@@ -24,7 +24,7 @@ module.exports = function (app, swig, gestorBD) {
         }
 
         //Criterios para la búsqueda según nombre, apellidos o email.
-        
+
         //La cadena introducida en el campo de búsqueda se usará para buscar
         //coincidencias en el nombre, apellido o email.
 
@@ -130,50 +130,51 @@ module.exports = function (app, swig, gestorBD) {
      *
      */
     app.post('/usuario', function (req, res) {
-        if( req.body.email !="" && req.body.nombre!="" && req.body.apellidos !="" &&
-            req.body.password !="" && req.body.passwordConfirm !=""){
-            if(req.body.password == req.body.passwordConfirm){
-                let seguro = app.get("crypto").createHmac('sha256', app.get('clave'))
-                    .update(req.body.password).digest('hex');
-                let usuario = {
-                    email: req.body.email,
-                    nombre : req.body.nombre,
-                    apellidos : req.body.apellidos,
-                    password: seguro
-                };
-                let criterio = {email: req.body.email};
-                gestorBD.obtenerUsuario(criterio, function (usuarios) {
+        //Comprobamos si hay algún campo vacío
+        comprobarCamposVacios(req,function (vacio) {
+            if(vacio == true) {
 
-                    if (usuarios.length==0 || usuarios==null) {
+                if (req.body.password == req.body.passwordConfirm) {
+                    let seguro = app.get("crypto").createHmac('sha256', app.get('clave'))
+                        .update(req.body.password).digest('hex');
+                    let usuario = {
+                        email: req.body.email,
+                        nombre: req.body.nombre,
+                        apellidos: req.body.apellidos,
+                        password: seguro
+                    };
+                    let criterio = {email: req.body.email};
+                    gestorBD.obtenerUsuario(criterio, function (usuarios) {
+
+                        if (usuarios.length == 0 || usuarios == null) {
                             gestorBD.insertarUsuario(usuario, function (id) {
                                 console.log(id);
                                 if (id == null) {
-                                    res.redirect("/registrarse" + "?mensaje=Error al registrar usuario"+
+                                    res.redirect("/registrarse" + "?mensaje=Error al registrar usuario" +
                                         "&tipoMensaje=alert-danger ");
-                                }
-                                else {
+                                } else {
 
                                     req.session.usuario = req.body.email;
                                     res.redirect("/usuarios?mensaje=Registro realizado correctamente");
                                 }
                             });
-                        }else{
-                            res.redirect("/registrarse?mensaje=Ya existe un usuario con este email." +  "&tipoMensaje=alert-danger ");
+                        } else {
+                            res.redirect("/registrarse?mensaje=Ya existe un usuario con este email." + "&tipoMensaje=alert-danger ");
                         }
 
-                })
+                    })
 
-            }
-            else{
-                res.redirect("/registrarse" + "?mensaje=Contraseñas no coinciden" +
-                    "&tipoMensaje=alert-danger ");
-            }
+                } else {
+                    res.redirect("/registrarse" + "?mensaje=Contraseñas no coinciden" +
+                        "&tipoMensaje=alert-danger ");
+                }
 
-        }else{
+            }else{
             res.redirect("/registrarse?mensaje=Campos vacios" +  "&tipoMensaje=alert-danger ");
         }
-    });
 
+    });
+    });
     /**
      *  Identificarse
      *
@@ -208,5 +209,18 @@ module.exports = function (app, swig, gestorBD) {
 
 
     });
+
+    function comprobarCamposVacios(req,funcionCallBack){
+
+        if( req.body.email !="" && req.body.nombre!="" && req.body.apellidos !="" &&
+            req.body.password !="" && req.body.passwordConfirm !=""){
+            
+            funcionCallBack(true);
+        }
+        else{
+            
+            funcionCallBack(false);
+        }
+    }
 
 }
