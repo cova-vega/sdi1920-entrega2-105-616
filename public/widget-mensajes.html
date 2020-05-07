@@ -1,0 +1,76 @@
+<div id="widget-mensajes">
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>Mensajes con</th>
+            <th id="mensajesCon" />
+        </tr>
+        </thead>
+        <tbody id="tablaMensajes">
+        </tbody>
+    </table>
+    <div>
+        <div class="form-group">
+            <label class="control-label col-sm-2" for="texto" id="texto">Mensaje:</label>
+            <div class="col-sm-10">
+                <input id="textoMensaje" type="text" class="form-control"
+                       name="texto" required="true" placeholder="Introduce el mensaje a enviar" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+                <button type="btn" onclick="enviarMensaje()" class="btn btn-primary">Enviar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    setInterval(function() {
+        if(flag)
+            cargarMensajes();
+    }, 1000);
+
+    function cargarMensajes() {
+        $.ajax({
+            url : URLbase + "/mensajes/" + $("#mensajesCon").text(),
+            type : "GET",
+            data : {},
+            dataType : 'json',
+            headers : {
+                "token" : token
+            },
+            success : function(respuesta) {
+                mensajes = respuesta;
+                actualizarTablaMensajes(mensajes);
+
+            },
+            error : function(error) {
+                clearInterval(intervalMId);
+                $("#contenedor-principal").load("widget-login.html");
+            }
+        });
+    }
+
+    function enviarMensaje() {
+        $.ajax({
+            url : URLbase + "/mensajes",
+            type : "POST",
+            data : {
+                destino : $("#mensajesCon").text(),
+                texto : $("#textoMensaje").val()
+            },
+            dataType : 'json',
+            headers : {
+                "token" : token
+            },
+            success : function(res) {
+                cargarMensajes();
+                $("#textoMensaje").val('');
+            },
+            error : function(error) {
+                $("#contenedor-principal").load("widget-login.html");
+            }
+        });
+    }
+</script>
