@@ -1,6 +1,18 @@
 module.exports = function (app, swig, gestorBD) {
 
-    //Lista de Usuarios
+    /**
+     *
+     * Listar todos los usuarios de la aplicación
+     *
+     * Muestra en una lista todos los usuarios de la aplicación. Para cada usuario
+     * se mostrará su nombre, apellidos y email.
+     *
+     * La lista incluye un sistema de páginación, mostrando 5 usuarios por páginna.
+     *
+     * Se incluye una opción en el menú principal, visible para usuarios en sesión,
+     * que nos permite acceder a esta lista.
+     *
+     */
 
     app.get("/usuarios", function (req, res) {
 
@@ -12,6 +24,11 @@ module.exports = function (app, swig, gestorBD) {
         }
 
         //Criterios para la búsqueda según nombre, apellidos o email.
+        
+        //La cadena introducida en el campo de búsqueda se usará para buscar
+        //coincidencias en el nombre, apellido o email.
+
+        //El resultado es una lista paginada que muestra las coincidencias encontradas
 
         let criterio = {};
         if( req.query.busqueda != null ){
@@ -23,7 +40,7 @@ module.exports = function (app, swig, gestorBD) {
             pg = 1;
         }
 
-        //Obtengo la lista de Usuarios paginada
+       //Obtenemos la lista de usuarios paginada de la base de datos
 
         gestorBD.obtenerUsuarioPg(criterio, pg, function (usuarios, total) {
 
@@ -52,7 +69,11 @@ module.exports = function (app, swig, gestorBD) {
     });
 
 
-    //Registro
+    /**
+     *
+     * Método que nos dirige a la página de registro
+     *
+     */
 
     app.get("/registrarse", function (req, res) {
         let respuesta = swig.renderFile('views/bregistro.html', {});
@@ -60,8 +81,12 @@ module.exports = function (app, swig, gestorBD) {
 
     });
 
-    //Pagina home
-    //Identificar
+    /**
+     *
+     * Pagina home que nos redirige a la página de identificación del usuario.
+     *
+     */
+
     app.get("/", function (req, res) {
 
         var respuesta = swig.renderFile('views/index.html', {});
@@ -70,7 +95,11 @@ module.exports = function (app, swig, gestorBD) {
     });
 
 
-    //Identificar
+    /**
+     *
+     * Método que nos dirige a la página de identificación
+     *
+     */
     app.get("/identificarse", function (req, res) {
 
         var respuesta = swig.renderFile('views/bidentificacion.html', {});
@@ -78,13 +107,28 @@ module.exports = function (app, swig, gestorBD) {
 
     });
 
-    //Desconectar
+    /**
+     * Fin de sesión
+     *
+     * Método que nos permite cerrar la sesión y que redirige al usuario a la página
+     * de inicio de sesión.
+     *
+     * Solo se mostrará esta opción si el usuario está autenticado
+     *
+     */
+
     app.get('/desconectarse', function (req, res) {
         req.session.usuario = null;
         res.redirect('/identificarse' + "?message=Desconectado correctamente");
     });
 
-    //Registrar Usuario
+    /**
+     * Registrar Usuario
+     *
+     * Los usuarios podrán registrarse en la aplicación aportando un email, nombre, apellidos
+     * y una contraseña que deberá repetirse y coincidir.
+     *
+     */
     app.post('/usuario', function (req, res) {
         if( req.body.email !="" && req.body.nombre!="" && req.body.apellidos !="" &&
             req.body.password !="" && req.body.passwordConfirm !=""){
@@ -130,7 +174,18 @@ module.exports = function (app, swig, gestorBD) {
         }
     });
 
-    //Identificarse
+    /**
+     *  Identificarse
+     *
+     * Suministrando su email y contraseña, un usuario podrá autenticarse ante el sistema
+     * Sólo los usuarios que proporcionen correctamente su email y su contraseña podrán iniciar
+     * sesión.
+     *
+     * En caso de que el inicio de sesión sea correcto, se dirige al usuario a la vista de
+     * listar todos los usuarios de la aplicación.
+     *
+     *
+     */
 
     app.post('/identificarse', function (req, res) {
             let seguro = app.get("crypto").createHmac('sha256', app.get('clave'))

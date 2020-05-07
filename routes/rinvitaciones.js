@@ -1,16 +1,28 @@
 
 module.exports = function (app, swig, gestorBD) {
 
-    //Lista de Invitaciones
+    /**
+     * Listar invitaciones de amistad recibidas
+     *
+     * Se visualiza en una lista todas las invitaciones de amistad recibidas por el usuario
+     * en sesión. Para cada invitación se muestra el nombre, el apellido y el email del usuario
+     * que envió la invitación
+     *
+     * La lista de invitaciones estará paginada y mostrará 5 invitaciones por página
+     *
+     *
+     */
 
     app.get("/invitaciones", function (req, res) {
 
-        //Compruebo que hay un usuario en sesión
+        //Comprobamos que hay un usuario en sesión
 
         if (req.session.usuario == null) {
             res.redirect("/identificarse");
             return;
         }
+
+        //Obtenemos el usuario en sesión
 
         let criterio = {"email": req.session.usuario};
         gestorBD.obtenerUsuario(criterio, function (usuarios) {
@@ -22,7 +34,7 @@ module.exports = function (app, swig, gestorBD) {
                 pg = 1;
             }
 
-            //Obtengo la lista de Invitaciones paginada
+            //Obtenemos la lista de Invitaciones paginada de la base de datos
 
             gestorBD.obtenerInvitacionesPg(criterio, pg, function (invitaciones, total) {
 
@@ -53,7 +65,18 @@ module.exports = function (app, swig, gestorBD) {
     });
 
 
-    //Enviar invitación de amistad
+    /**
+     * Enviar invitación de amistad
+     *
+     * Junto a la información de cada usuario en la lista de todos los usuarios habrá
+     * un botón agregar amigo que permitirá a un usuario enviar una invitación de amistad
+     * a otro.
+     *
+     * Se valida que el usuario no se mande invitaciones a sí mismo ni que se envíen
+     * invitaciones a usuarios que ya han sido invitados o ya son amigos del usuario.
+     *
+     *
+     */
 
     app.get('/invitacion/:id', function (req, res) {
 
@@ -108,24 +131,32 @@ module.exports = function (app, swig, gestorBD) {
         })
     });
 
-    //Aceptar invitaciones
+    /**
+     * Aceptar invitaciones
+     *
+     * En la lista de invitaciones habrá una opción que nos permita aceptar dichas invitaciones
+     * Al pulsar esta opción, la invitación deberá desaparecer de la lista y el usuario que la envió
+     * pasará a ser amigo del usuario en sesión y viceversa.
+     *
+     */
     app.get("/invitacion/aceptada/:id", function (req, res) {
         let id = gestorBD.mongo.ObjectID(req.params.id);
 
         let criterio = {"_id": id}
         gestorBD.obtenerInvitaciones(criterio, function (invitacion) {
 
-            //Compruebo que el id de la invitacion no sea el mismo que esta en sesion
+            //Comprobamos que el id de la invitacion no sea el mismo que esta en sesion
             if (invitacion[0].email == req.session.usuario) {
                 res.send("No hay ninguna invitacion")
             } else {
-                //Compruebo que la invitación no haya sido ya aceptada
+                //Comprobamos que la invitación no haya sido ya aceptada
                 let criterio2 = {"_id": gestorBD.mongo.ObjectID(req.params.id)};
                 let peticion = {
                     aceptado: true
                 }
 
-                //Actualizo la peticion para que el estado cambie a true
+                //Actualizamos la peticion para que el estado cambie a true y añadimos cada usuario
+                //a la lista de amigos
                 gestorBD.actualizarPeticion(criterio2, peticion, function (invitaciones) {
                     let amigo1 = { amigo_1: invitacion[0].receptor ,
                                    amigo_2: invitacion[0].emisor }
@@ -145,11 +176,20 @@ module.exports = function (app, swig, gestorBD) {
         })
     });
 
-    //Lista de amigos
+    /**
+     * Se visualizará en una lista todos los usuarios amigos del usuario en sesión.
+     * Para cada usuario se mostrará su nombre, apellidos y email.
+     *
+     * La lista estará paginada y mostrará 5 usuarios por página.
+     *
+     * Habrá una opción de menú principal, solo visible para usuarios en sesión, que
+     * permita acceder a la lista de amigos del usuario en sesión
+     *
+     */
 
     app.get("/amigos", function (req, res) {
 
-        //Compruebo que hay un usuario en sesión
+        //Comprobamos que hay un usuario en sesión
         if (req.session.usuario == null) {
             res.redirect("/identificarse");
             return;
@@ -161,7 +201,7 @@ module.exports = function (app, swig, gestorBD) {
             }
 
             let criterio2 = {"amigo_1.email": req.session.usuario}
-            //Obtengo la lista de amigos paginada
+            //Obtenemos la lista de amigos paginada de la base de datos
 
             gestorBD.obtenerAmigosPg(criterio2, pg, function (amigos, total) {
 

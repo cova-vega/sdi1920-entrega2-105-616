@@ -1,0 +1,53 @@
+<div id="widget-canciones" >
+    <button class="btn" onclick="cargarAmigos()" >Actualizar</button>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>Email</th>
+            <th class="col-md-1"></th>
+        </tr>
+        </thead>
+        <tbody id="tablaCuerpo">
+
+        </tbody>
+    </table>
+</div>
+
+<script>
+    var amigos;
+    function cargarAmigos(email){
+        $.ajax({
+            url: URLbase + "/amigos",
+            type: "GET",
+            data: { usuario },
+            dataType: 'json',
+            headers: { "token": token },
+            success: function(respuesta) {
+                amigos = respuesta;
+                console.log(amigos);
+                actualizarTabla(amigos);
+            },
+            error : function (error){
+                $( "#contenedor-principal" ).load("widget-login.html");
+            }
+        });
+    }
+    function actualizarTabla(amigosMostrar){
+
+        $( "#tablaCuerpo" ).empty(); // Vaciar la tabla
+        for (i = 0; i < amigosMostrar.length; i++) {
+            $( "#tablaCuerpo" ).append(
+                "<tr id="+amigosMostrar[i]._id+">"+
+                "<td>"+amigosMostrar[i]+"</td>" +
+                "<td>"+amigosMostrar[i].apellidos+"</td>" +
+                "<td>"+amigosMostrar[i].email+"</td>" +
+
+                "</tr>" );
+            // Mucho cuidado con las comillas del eliminarCancion
+            //la id tiene que ir entre comillas ' '
+        }
+    }
+    cargarAmigos();
+</script>

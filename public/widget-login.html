@@ -22,6 +22,7 @@
 
 <script>
 
+    var usuario;
     window.history.pushState("", "", "/cliente.html?w=login");
     $("#boton-login").click(function(){
         $.ajax({
@@ -36,12 +37,11 @@
             success: function (respuesta) {
                 console.log(respuesta.token);
                 token = respuesta.token;
-
-                $("#contenedor-principal").load("widget-canciones.html");
+                usuario = $("#email").val();
+                $("#contenedor-principal").load("widget-amigos.html");
             },
 
             error: function (error) {
-
                 $("#widget-login").prepend("<div class ='alert alert-danger'>Usuario no encontrado</div>");
             }
         });

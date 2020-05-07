@@ -1,9 +1,15 @@
 module.exports = function(app, gestorBD) {
 
 
-    //Implementamos Token por Login. A partir del usuario y la contraseña encriptada realizamos
-    //una búsqueda en la base de datos, si los datos coinciden retornamos un JSON con el un nuevo
-    //token. En caso contrario, retornamos un JSON con un mensaje de  error de inicio de sesión incorrecto.
+    /**
+     * Identificarse con usuario-token
+     *
+     * Implementamos Token por Login. A partir del usuario y la contraseña encriptada realizamos
+     * una búsqueda en la base de datos, si los datos coinciden retornamos un JSON con el un nuevo
+     * token. En caso contrario, retornamos un JSON con un mensaje de  error de inicio de sesión incorrecto.
+     *
+     *
+     */
 
     app.post("/api/autenticar/", function(req, res) {
         var seguro = app.get("crypto").createHmac('sha256', app.get('clave'))
@@ -35,9 +41,15 @@ module.exports = function(app, gestorBD) {
         });
     });
 
-        //EL servicio retorna un JSON con una lista de con los identificadores de todos los amigos del usuario identificado. En
-        //caso de que la lista esté vacía retornamos un JSON con un mensaje de error. Para permitir listar los amigos el usuario
-        //debe de estar identificado en la aplicación, por lo tanto, la petición debe contener un token de seguridad válido
+    /**
+     * Listar todos los amigos de un usuario
+     *
+     * EL servicio retorna un JSON con una lista de con los identificadores de todos los amigos del usuario identificado. En
+     * caso de que la lista esté vacía retornamos un JSON con un mensaje de error. Para permitir listar los amigos el usuario
+     * debe de estar identificado en la aplicación, por lo tanto, la petición debe contener un token de seguridad válido.
+     *
+     *
+     */
 
         app.get("/api/amigos", function(req, res) {
 
@@ -62,8 +74,15 @@ module.exports = function(app, gestorBD) {
             });
         });
 
-        //Función que, dada una lista de amigos, obtiene el identificador de cada amigo
-       // y devuelve una lista con todos los identificadores.
+    /**
+     *
+     * Lista de identificadores
+     *
+     * Función que, dada una lista de amigos, obtiene el identificador de cada amigo
+     * y devuelve una lista con todos los identificadores.
+     *
+     */
+
 
        function obtenerIdentificadores(usuarios,funcionCallback) {
 
