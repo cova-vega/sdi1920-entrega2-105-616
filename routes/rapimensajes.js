@@ -1,5 +1,16 @@
 module.exports = function (app, gestorBD) {
 
+
+    /**
+     * Crear un mensaje
+     *
+     * El mensaje tiene las siguientes propiedades emisor,destino,texto y leido
+     * primero obtenemos los usuario que son amigos porque son los que se pueden mandar mensajes
+     * entonces hacemos un filtrado si es emisor o destino y si coinciden son amigos entonces se inserta el mensaje
+     * Metodo POST
+     *
+     *
+     */
     //Crear nuevo mensaje
     app.post('/api/mensajes', function (req, res) {
 
@@ -34,14 +45,22 @@ module.exports = function (app, gestorBD) {
 
         });
     });
+    /**
+     * Obtener mensaje
+     *
+     * Primero se obtienen los usuarios que son amigos, hacemos otro criterio que miramos si el
+     * emisor es el que esta en sesion y el destino es el que recibe el mensaje o al reves
+     *
+     * Metodo GET
+     *
+     *
+     */
 
-
-    //Obtener los mensajes
     app.get("/api/mensajes/:email", function (req, res) {
 
         let criterio = {
-            $or: [{$and: [{"amigo_2": res.usuario}, {"amigo_2": req.params.email}]},
-                {$and: [{"amigo_1":req.params.email}, {"amigo_2": res.usuario}]}]
+            $or: [{$and: [{"amigo_1.email": req.session.usuario}, {"amigo_2.email": req.params.email}]},
+                {$and: [{"amigo_1.email":req.params.email}, {"amigo_2.email": req.session.usuario}]}]
         };
 
         gestorBD.obtenerAmigos(criterio, function (amigos) {
@@ -51,8 +70,8 @@ module.exports = function (app, gestorBD) {
             } else {
                 //Miramos si el emisor es el usuario en sesion y el destino es el email correcto y vicebersar
                 let criterio2 = {
-                    $or: [{$and: [{"emisor": req.body.email}, {"destino": req.params.email}]},
-                        {$and: [{"emisor": req.params.email}, {"destino": req.body.email}]}]
+                    $or: [{$and: [{"emisor": req.session.usuario}, {"destino": req.params.email}]},
+                        {$and: [{"emisor": req.params.email}, {"destino": req.session.usuario}]}]
                 };
 
                 gestorBD.obtenerMensajes(criterio2, function (mensajes) {
