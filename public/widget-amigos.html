@@ -8,6 +8,7 @@
             <th>Nombre</th>
             <th>Apellido</th>
             <th>Email</th>
+            <th>Enviar mensaje</th>
             <th class="col-md-1"></th>
         </tr>
         </thead>
@@ -40,15 +41,16 @@
 
         $( "#tablaCuerpo" ).empty(); // Vaciar la tabla
         for (i = 0; i < amigosMostrar.length; i++) {
+            var amigo;
             $( "#tablaCuerpo" ).append(
                 "<tr id="+amigosMostrar[i].amigo_2._id+">"+
                 "<td>"+amigosMostrar[i].amigo_2.nombre+"</td>" +
                 "<td>"+amigosMostrar[i].amigo_2.apellidos+"</td>" +
                 "<td>"+amigosMostrar[i].amigo_2.email+"</td>" +
 
-                "</tr>" );
-            // Mucho cuidado con las comillas del eliminarCancion
-            //la id tiene que ir entre comillas ' '
+                "<td>"
+                + "<a id="+amigosMostrar[i]._id+" onclick = \"cargarMensajes('" + amigosMostrar[i].amigo_2.email + "')\">"
+                + amigosMostrar[i].amigo_2.email + "</a>" +"</td>" + "</tr>");
         }
     }
     cargarAmigos();
@@ -66,5 +68,38 @@
     });
 
 
+    function actualizarTablaMensajes(mostrarMensajes) {
+        $("#tablaMensajes").empty(); // Vaciar la tabla
+        for (i = 0; i < mostrarMensajes.length; i++) {
+
+            var linea = "<td>" + mostrarMensajes[i].texto + "</td>";
+            $("#tablaMensajes").append(
+                "<tr id="+ mostrarMensajes[i]._id+">" + linea + "</tr>");
+        }
+    }
+
+    var mensajes;
+    function cargarMensajes(amigo) {
+        $("#contenedor-principal").load("widget-mensajes.html");
+        $.ajax({
+            url : URLbase + "/mensajes/" + amigo,
+            type : "GET",
+            data : {},
+            dataType : 'json',
+            headers : {
+                "token" : token
+            },
+            success : function(respuesta) {
+                mensajes = respuesta;
+                actualizarTablaMensajes(mensajes);
+                $("#mensajesCon").text(amigo);
+                flag=true;
+            },
+            error : function(error) {
+                clearInterval(intervalMId);
+                $("#contenedor-principal").load("widget-login.html");
+            }
+        });
+    }
 
 </script>
