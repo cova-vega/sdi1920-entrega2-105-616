@@ -8,9 +8,8 @@
     "express-session": "^1.17.1",
     "jsonwebtoken": "^8.5.1",
     "mongodb": "^2.2.33",
-    "swig": "^1.4.2"
+    "swig": "^1.4.2",
+    "log4js": "latest"
   },
-  "devDependencies": {
-    "log4js": "^6.2.1"
-  }
+  "devDependencies": {}
 }

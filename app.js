@@ -1,18 +1,30 @@
 //Modulos
 let express = require('express');
 let app = express();
+
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Credentials", "true");
+    res.header("Access-Control-Allow-Methods", "POST, GET, DELETE, UPDATE, PUT");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, token");
+    // Debemos especificar todas las headers que se aceptan. Content-Type , token
+    next();
+});
+let log4js = require('log4js');
+log4js.configure({
+    appenders: { sdi2: { type: 'file', filename: 'redSocialNode.log' } },
+    categories: { default: { appenders: ['sdi2'], level: 'trace' } }
+});
+let logger = log4js.getLogger('sdi2');
+
+
 let expressSession = require('express-session');
 app.use(expressSession({
     secret: 'abcdefg',
     resave: true,
     saveUninitialized: true
 }));
-log4js = require('log4js');
-log4js.configure({
-    appenders: { sdi2: { type: 'file', filename: 'redSocialNode.log' } },
-    categories: { default: { appenders: ['sdi2'], level: 'trace' } }
-});
-let logger = log4js.getLogger('sdi2');
+
 
 let mongo = require('mongodb');
 
@@ -42,6 +54,7 @@ app.set('port', 8081);
 app.set('db', 'mongodb://admin:sdi@socialnetwork-shard-00-00-fld0u.mongodb.net:27017,socialnetwork-shard-00-01-fld0u.mongodb.net:27017,socialnetwork-shard-00-02-fld0u.mongodb.net:27017/test?ssl=true&replicaSet=SocialNetwork-shard-0&authSource=admin&retryWrites=true&w=majority');
 app.set('clave', '123345678RO');
 app.set('crypto', crypto);
+app.set('logger',logger);
 //Rutas/controladores por lógica
 require("./routes/rusuarios.js")(app, swig, gestorBD);
 require("./routes/rinvitaciones.js")(app, swig, gestorBD);
