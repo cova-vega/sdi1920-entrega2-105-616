@@ -15,7 +15,7 @@ module.exports = function (app, gestorBD) {
     app.post('/api/mensajes', function (req, res) {
 
         let mensaje = {
-            emisor: req.body.email,
+            emisor:  app.get('jwt').decode(req.headers['token'],'secreto').usuario,
             destino: req.body.destino,
             texto: req.body.texto,
             leido: false

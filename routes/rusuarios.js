@@ -225,7 +225,7 @@ module.exports = function (app, swig, gestorBD) {
 
         if( req.body.email !="" && req.body.nombre!="" && req.body.apellidos !="" &&
             req.body.password !="" && req.body.passwordConfirm !=""){
-            Informatica
+
             funcionCallBack(true);
         }
         else{
