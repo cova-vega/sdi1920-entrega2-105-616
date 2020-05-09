@@ -1,4 +1,3 @@
-
 module.exports = function (app, swig, gestorBD) {
 
     /**
@@ -27,7 +26,7 @@ module.exports = function (app, swig, gestorBD) {
         let criterio = {"email": req.session.usuario};
         gestorBD.obtenerUsuario(criterio, function (usuarios) {
 
-            criterio = {$and: [{"receptor": usuarios[0]},{"aceptado":false}]};
+            criterio = {$and: [{"receptor": usuarios[0]}, {"aceptado": false}]};
 
             let pg = parseInt(req.query.pg); // Es String !!!
             if (req.query.pg == null) { // Puede no venir el param
@@ -57,7 +56,7 @@ module.exports = function (app, swig, gestorBD) {
                             invitaciones: invitaciones,
                             paginas: paginas,
                             actual: pg,
-                            usuarios:usuarios
+                            usuarios: usuarios
                         });
                     app.get("logger").info("Listando peticiones de amistad corréctamente para "
                         + req.session.usuario);
@@ -139,77 +138,83 @@ module.exports = function (app, swig, gestorBD) {
             })
 
         })
-        })
+    })
 
-        /**
-         * Aceptar invitaciones
-         *
-         * En la lista de invitaciones habrá una opción que nos permita aceptar dichas invitaciones
-         * Al pulsar esta opción, la invitación deberá desaparecer de la lista y el usuario que la envió
-         * pasará a ser amigo del usuario en sesión y viceversa.
-         *
-         */
-        app.get("/invitacion/aceptada/:id", function (req, res) {
-            let id = gestorBD.mongo.ObjectID(req.params.id);
+    /**
+     * Aceptar invitaciones
+     *
+     * En la lista de invitaciones habrá una opción que nos permita aceptar dichas invitaciones
+     * Al pulsar esta opción, la invitación deberá desaparecer de la lista y el usuario que la envió
+     * pasará a ser amigo del usuario en sesión y viceversa.
+     *
+     */
+    app.get("/invitacion/aceptada/:id", function (req, res) {
+        let id = gestorBD.mongo.ObjectID(req.params.id);
 
-            let criterio = {"_id": id}
-            gestorBD.obtenerInvitaciones(criterio, function (invitacion) {
+        let criterio = {"_id": id}
+        gestorBD.obtenerInvitaciones(criterio, function (invitacion) {
 
-                //Comprobamos que el id de la invitacion no sea el mismo que esta en sesion
-                if (invitacion[0].email == req.session.usuario) {
-                    app.get('logger').error("No hay ninguna invitación.");
-                    res.redirect("/usuarios" + "?mensaje=No hay ninguna invitacion" + "&tipoMensaje=alert-danger");
-                } else {
-                    //Comprobamos que la invitación no haya sido ya aceptada
-                    let criterio2 = {"_id": gestorBD.mongo.ObjectID(req.params.id)};
-                    let peticion = {
-                        aceptado: true
-                    }
-
-                    //Actualizamos la peticion para que el estado cambie a true y añadimos cada usuario
-                    //a la lista de amigos
-                    gestorBD.actualizarPeticion(criterio2, peticion, function (invitaciones) {
-                        let amigo1 = {
-                            amigo_1: invitacion[0].receptor,
-                            amigo_2: invitacion[0].emisor
-                        }
-                        gestorBD.insertarAmigo(amigo1, function () {
-                            let amigo2 = {
-                                amigo_1: invitacion[0].emisor,
-                                amigo_2: invitacion[0].receptor
-                            }
-                            gestorBD.insertarAmigo(amigo2, function () {
-                                app.get('logger').info("Usuario " + req.session.usuario + "ha aceptado una peticion.");
-                                res.redirect("/invitaciones?mensaje=Peticion aceptada");
-                            })
-                        })
-
-                    })
-
+            //Comprobamos que el id de la invitacion no sea el mismo que esta en sesion
+            if (invitacion[0].email == req.session.usuario) {
+                app.get('logger').error("No hay ninguna invitación.");
+                res.redirect("/usuarios" + "?mensaje=No hay ninguna invitacion" + "&tipoMensaje=alert-danger");
+            } else {
+                //Comprobamos que la invitación no haya sido ya aceptada
+                let criterio2 = {"_id": gestorBD.mongo.ObjectID(req.params.id)};
+                let peticion = {
+                    aceptado: true
                 }
 
-            })
-        });
+                //Actualizamos la peticion para que el estado cambie a true y añadimos cada usuario
+                //a la lista de amigos
+                gestorBD.actualizarPeticion(criterio2, peticion, function (invitaciones) {
+                    let amigo1 = {
+                        amigo_1: invitacion[0].receptor,
+                        amigo_2: invitacion[0].emisor
+                    }
+                    gestorBD.insertarAmigo(amigo1, function () {
+                        let amigo2 = {
+                            amigo_1: invitacion[0].emisor,
+                            amigo_2: invitacion[0].receptor
+                        }
+                        gestorBD.insertarAmigo(amigo2, function () {
+                            app.get('logger').info("Usuario " + req.session.usuario + "ha aceptado una peticion.");
+                            res.redirect("/invitaciones?mensaje=Peticion aceptada");
+                        })
+                    })
 
-        /**
-         * Se visualizará en una lista todos los usuarios amigos del usuario en sesión.
-         * Para cada usuario se mostrará su nombre, apellidos y email.
-         *
-         * La lista estará paginada y mostrará 5 usuarios por página.
-         *
-         * Habrá una opción de menú principal, solo visible para usuarios en sesión, que
-         * permita acceder a la lista de amigos del usuario en sesión
-         *
-         */
+                })
 
-        app.get("/amigos", function (req, res) {
-
-            //Comprobamos que hay un usuario en sesión
-            if (req.session.usuario == null) {
-                app.get('logger').error("No hay ningun usuario en sesion.");
-                res.redirect("/identificarse");
-                return;
             }
+
+        })
+    });
+
+    /**
+     * Se visualizará en una lista todos los usuarios amigos del usuario en sesión.
+     * Para cada usuario se mostrará su nombre, apellidos y email.
+     *
+     * La lista estará paginada y mostrará 5 usuarios por página.
+     *
+     * Habrá una opción de menú principal, solo visible para usuarios en sesión, que
+     * permita acceder a la lista de amigos del usuario en sesión
+     *
+     */
+
+    app.get("/amigos", function (req, res) {
+
+        //Comprobamos que hay un usuario en sesión
+        if (req.session.usuario == null) {
+            app.get('logger').error("No hay ningun usuario en sesion.");
+            res.redirect("/identificarse");
+            return;
+        }
+        //Obtenemos el usuario en sesión
+
+        let criterio = {"email": req.session.usuario};
+        gestorBD.obtenerUsuario(criterio, function (usuarios) {
+
+            criterio = {$and: [{"receptor": usuarios[0]}, {"aceptado": false}]};
 
             let pg = parseInt(req.query.pg); // Es String !!!
             if (req.query.pg == null) { // Puede no venir el param
@@ -237,7 +242,11 @@ module.exports = function (app, swig, gestorBD) {
                     }
                     let respuesta = swig.renderFile('views/bamigos.html',
                         {
-                            amigos: amigos
+                            amigos: amigos,
+                            paginas: paginas,
+                            actual: pg,
+                            usuarios: usuarios
+
                         });
                     app.get("logger").info("Listando lista de amigos para "
                         + req.session.usuario);
@@ -245,18 +254,19 @@ module.exports = function (app, swig, gestorBD) {
                 }
             });
         });
+    });
 
 
-        function invitacionASiMismo(receptor, emisor, funcionCallBack) {
+    function invitacionASiMismo(receptor, emisor, funcionCallBack) {
 
-            if (receptor.email != emisor.email) {
+        if (receptor.email != emisor.email) {
 
-                funcionCallBack(true)
+            funcionCallBack(true)
 
 
-            } else {
-                funcionCallBack(false);
-            }
+        } else {
+            funcionCallBack(false);
         }
     }
+}
 
