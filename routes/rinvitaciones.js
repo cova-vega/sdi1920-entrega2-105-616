@@ -90,17 +90,20 @@ module.exports = function (app, swig, gestorBD) {
             gestorBD.obtenerUsuario(criterio, function (emisor1) {
 
                 //Compruebo que no esté enviándose la invitación de amistad a sí mismo
-                invitacionASiMismo(receptor1[0], emisor1[0], function (esASiMismo) {
+                invitacionASiMismo(receptor1[0], emisor1[0], function (esASiMismo){
+
 
                     if (esASiMismo == true) {
+                   //Compruebo que no son amigos ya
+                        yaEsAmigo(emisor1[0],receptor1[0], function (noEsAmigo) {
+
+                            if(noEsAmigo == true){
 
 
-                        //Compruebo que la invitación no haya sido ya enviada
-                        let criterio2 = {$and: [{"emisor": emisor1[0]}, {"receptor": receptor1[0]}, {"aceptado": false}]};
+                     //Compruebo que la invitación no haya sido ya enviada
+                        invitacionNoEnviada(emisor1[0],receptor1[0],function (noEnviada) {
 
-                        gestorBD.obtenerInvitaciones(criterio2, function (invitaciones) {
-
-                            if (invitaciones == null || invitaciones.length <= 0) {
+                            if (noEnviada == true) {
 
                                 let invitacion = {
 
@@ -121,20 +124,25 @@ module.exports = function (app, swig, gestorBD) {
                                 });
                             } else {
                                 app.get('logger').error("Invitación ya enviada.");
-                                res.redirect("/usuarios" + "?mensaje=Invitacion ya enviada o ya es amigo" + "&tipoMensaje=alert-danger");
+                                res.redirect("/usuarios" + "?mensaje=Invitacion ya enviada" + "&tipoMensaje=alert-danger");
                             }
 
                         })
 
 
                     } else {
-                        app.get('logger').error("No se pueden enviar peticiones a si mismo.");
-                        res.redirect("/usuarios" + "?mensaje=No puede enviarse una petición a sí mismo" + "&tipoMensaje=alert-danger");
+                        app.get('logger').error("Ya son amigos");
+                        res.redirect("/usuarios" + "?mensaje=Ya son amigos" + "&tipoMensaje=alert-danger");
 
 
                     }
                 })
+                    }else{
 
+                        app.get('logger').error("No se pueden enviar peticiones a si mismo.");
+                        res.redirect("/usuarios" + "?mensaje=No puede enviarse una petición a sí mismo" + "&tipoMensaje=alert-danger");
+                    }
+                })
             })
 
         })
@@ -191,7 +199,7 @@ module.exports = function (app, swig, gestorBD) {
         })
     });
 
-    
+
     function invitacionASiMismo(receptor, emisor, funcionCallBack) {
 
         if (receptor.email != emisor.email) {
@@ -202,6 +210,48 @@ module.exports = function (app, swig, gestorBD) {
         } else {
             funcionCallBack(false);
         }
+    }
+
+
+
+    function invitacionNoEnviada(emisor,receptor,funcionCallBack){
+
+        //Compruebo que la invitación no haya sido ya enviada
+        let criterio2 = {$and: [{"emisor": emisor}, {"receptor": receptor}, {"aceptado": false}]};
+
+        gestorBD.obtenerInvitaciones(criterio2, function (invitaciones) {
+
+            if (invitaciones == null || invitaciones.length <= 0) {
+
+                funcionCallBack(true);
+            }
+
+            else{
+                funcionCallBack(false);
+            }
+        })
+
+
+
+    }
+
+    function yaEsAmigo(emisor,receptor,funcionCallBack){
+
+        let criterio = {$or: [{$and: [{"emisor": emisor}, {"receptor": receptor}, {"aceptado": true}]},
+                              {$and: [{"emisor": receptor}, {"receptor": emisor}, {"aceptado": true}]}]};
+
+        gestorBD.obtenerInvitaciones(criterio, function (invitaciones) {
+
+            if (invitaciones == null || invitaciones.length <= 0) {
+
+                funcionCallBack(true);
+            }
+
+            else{
+                funcionCallBack(false);
+            }
+        })
+
     }
 }
 

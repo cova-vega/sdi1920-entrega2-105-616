@@ -60,7 +60,7 @@ require("./routes/rusuarios.js")(app, swig, gestorBD);
 require("./routes/rinvitaciones.js")(app, swig, gestorBD);
 require("./routes/rapiamigos.js")(app, gestorBD);
 require("./routes/rapimensajes.js")(app, gestorBD);
-
+require("./routes/ramigos.js")(app,swig, gestorBD);
 
 //Router Usuario Token
 //Obtenemos el parámetro token
