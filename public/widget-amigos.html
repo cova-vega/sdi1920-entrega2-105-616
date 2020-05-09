@@ -9,7 +9,7 @@
             <th>Nombre</th>
             <th>Apellido</th>
             <th>Email</th>
-            <th>Enviar mensaje</th>
+            <th>Chatear con:</th>
             <th class="col-md-1"></th>
         </tr>
         </thead>
@@ -51,7 +51,7 @@
 
                 "<td>"
                 + "<a id="+amigosMostrar[i]._id+" onclick = \"cargarMensajes('" + amigosMostrar[i].amigo_2.email+ "')\">"
-                + "Chatear" + "</a>" +"</td>" + "</tr>");
+                +amigosMostrar[i].amigo_2.email + "</a>" +"</td>" + "</tr>");
         }
     }
     cargarAmigos();
