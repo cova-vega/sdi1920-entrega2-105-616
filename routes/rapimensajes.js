@@ -38,7 +38,7 @@ module.exports = function (app, gestorBD) {
                         res.json({error: "Se ha producido un error"})
                     } else {
                         res.status(201);
-                        res.json({error: "Mensaje creado correctamente"})
+                        res.json({mensaje: "Mensaje creado correctamente"})
                     }
                 });
             }
