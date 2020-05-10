@@ -29,6 +29,7 @@
             dataType: 'json',
             headers: { "token": token },
             success: function(respuesta) {
+                $("#widget-amigos").prepend("<div class='alert alert-info'>Usuario registrado correctamente</div>");
                 amigos = respuesta;
 
                 actualizarTabla(amigos);

@@ -21,8 +21,6 @@
 </div>
 
 <script>
-
-
     window.history.pushState("", "", "/cliente.html?w=login");
     $("#btnAceptar").click(function(){
         $.ajax({
@@ -38,6 +36,7 @@
                 console.log(respuesta.token);
                 token = respuesta.token;
                 $("#contenedor-principal").load("widget-amigos.html");
+
             },
 
             error: function (error) {
