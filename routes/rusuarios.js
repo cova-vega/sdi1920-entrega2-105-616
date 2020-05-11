@@ -233,5 +233,4 @@ module.exports = function (app, swig, gestorBD) {
             funcionCallBack(false);
         }
     }
-
 }
